@@ -14,4 +14,4 @@ jobs:
 
       - name: Connect to Segfault VPS
         run: |
-          sshpass -p "segfault" ssh -o "SetEnv SECRET=${{ secrets.SEGFAULT_SECRET }}" -o "StrictHostKeyChecking=no" ${{ secrets.SEGFAULT_HOST }} "ls"
+          sshpass -p "segfault" ssh -o "SetEnv SECRET=${{ secrets.SEGFAULT_SECRET }}" -o "StrictHostKeyChecking=no" root@segfault.net "ls"
