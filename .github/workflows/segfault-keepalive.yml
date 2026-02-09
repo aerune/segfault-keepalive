@@ -3,7 +3,7 @@ name: Segfault Keep-Alive
 on:
   schedule:
     - cron: '*/20 * * * *'  # Runs every 20 minutes; adjust as needed (e.g., */30 for every 30 minutes)
-
+  workflow_dispatch:
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
