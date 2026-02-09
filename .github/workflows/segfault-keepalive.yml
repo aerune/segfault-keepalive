@@ -1,0 +1,17 @@
+name: Segfault Keep-Alive
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'  # Runs every 20 minutes; adjust as needed (e.g., */30 for every 30 minutes)
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Connect to Segfault VPS
+        run: |
+          sshpass -p "segfault" ssh -o "SetEnv SECRET=${{ secrets.SEGFAULT_SECRET }}" -o "StrictHostKeyChecking=no" ${{ secrets.SEGFAULT_HOST }} "ls"
