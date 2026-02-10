@@ -20,16 +20,14 @@ jobs:
           SEGFAULT_PASS: segfault
         run: |
           set -euo pipefail
-          if printf "exit\n" | sshpass -p "$SEGFAULT_PASS" ssh -tt \
+
+          timeout 120s sh -c '
+            printf "exit\n" | sshpass -p "$SEGFAULT_PASS" ssh -tt \
               -o "RequestTTY=force" \
               -o "SetEnv=SECRET=$SEGFAULT_SECRET" \
               -o "StrictHostKeyChecking=no" \
               -o "UserKnownHostsFile=/dev/null" \
               -o "PreferredAuthentications=password" \
               -o "PubkeyAuthentication=no" \
-              root@segfault.net >/dev/null 2>&1; then
-            echo "Segfault keep-alive: OK"
-          else
-            echo "Segfault keep-alive: FAILED" >&2
-            exit 1
-          fi
+              root@segfault.net
+          ' >/dev/null 2>&1
