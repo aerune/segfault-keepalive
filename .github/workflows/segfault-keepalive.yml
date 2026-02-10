@@ -13,35 +13,23 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y sshpass
-      - name: Prove SECRET is set (hash only)
-        env:
-          SEGFAULT_SECRET: ${{ secrets.SEGFAULT_SECRET }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
-          sshpass -p "segfault" ssh -tt \
-            -o "StrictHostKeyChecking=no" \
-            -o "SetEnv SECRET=$SEGFAULT_SECRET" \
-            root@segfault.net \
-            'printenv SECRET | sha256sum | cut -d" " -f1'
-
 
       - name: Connect to Segfault (keep-alive)
         env:
           SEGFAULT_SECRET: ${{ secrets.SEGFAULT_SECRET }}
-          SEGFAULT_PASS: segfault   # better: store this in secrets too
+          SEGFAULT_PASS: segfault
         run: |
           set -euo pipefail
-
-          # sanity check (doesn't print the secret)
-          echo "SEGFAULT_SECRET length: ${#SEGFAULT_SECRET}"
-
-          # Open an interactive-ish session (TTY) and exit immediately
-          printf "exit\n" | sshpass -p "$SEGFAULT_PASS" ssh -tt \
-            -o "RequestTTY=force" \
-            -o "SetEnv=SECRET=$SEGFAULT_SECRET" \
-            -o "StrictHostKeyChecking=no" \
-            -o "UserKnownHostsFile=/dev/null" \
-            -o "PreferredAuthentications=password" \
-            -o "PubkeyAuthentication=no" \
-            root@segfault.net
+          if printf "exit\n" | sshpass -p "$SEGFAULT_PASS" ssh -tt \
+              -o "RequestTTY=force" \
+              -o "SetEnv=SECRET=$SEGFAULT_SECRET" \
+              -o "StrictHostKeyChecking=no" \
+              -o "UserKnownHostsFile=/dev/null" \
+              -o "PreferredAuthentications=password" \
+              -o "PubkeyAuthentication=no" \
+              root@segfault.net >/dev/null 2>&1; then
+            echo "Segfault keep-alive: OK"
+          else
+            echo "Segfault keep-alive: FAILED" >&2
+            exit 1
+          fi
