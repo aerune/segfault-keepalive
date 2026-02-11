@@ -2,7 +2,6 @@ name: Segfault Keep-Alive
 on:
   schedule:
     - cron: '*/20 * * * *'
-  workflow_dispatch:
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
@@ -11,23 +10,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y sshpass
-      - name: Print SEGFAULT_SECRET (recovery)
-        env:
-          SEGFAULT_SECRET: ${{ secrets.SEGFAULT_SECRET }}
-        run: |
-          set -euo pipefail
-          secret="$SEGFAULT_SECRET"
-          # Print with dashes between each character to bypass potential masking
-          output=""
-          for ((i=0; i<${#secret}; i++)); do
-            if [ $i -gt 0 ]; then
-              output+="-"
-            fi
-            output+="${secret:$i:1}"
-          done
-          echo "$output"
-          # Alternatively, base64 encode it
-          echo "$secret" | base64
       - name: Connect to Segfault (keep-alive)
         env:
           SEGFAULT_SECRET: ${{ secrets.SEGFAULT_SECRET }}
