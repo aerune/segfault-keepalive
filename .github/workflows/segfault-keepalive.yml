@@ -24,5 +24,5 @@ jobs:
               -o "UserKnownHostsFile=/dev/null" \
               -o "PreferredAuthentications=password" \
               -o "PubkeyAuthentication=no" \
-              root@segfault.net
+              root@adm.segfault.net
           ' >/dev/null 2>&1
