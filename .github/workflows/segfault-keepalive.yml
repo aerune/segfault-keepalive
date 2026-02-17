@@ -1,7 +1,5 @@
 name: Segfault Keep-Alive
 on:
-  schedule:
-    - cron: '*/20 * * * *'
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
