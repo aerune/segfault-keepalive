@@ -1,26 +1,45 @@
-name: Segfault Keep-Alive
+name: Hourly Segfault Keepalive
+
 on:
+  schedule:
+    - cron: "0 * * * *" # every hour
+  workflow_dispatch:
+
 jobs:
-  keep-alive:
+  keepalive:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Install sshpass
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SEGFAULT_SSH_KEY }}
+
+      - name: Add host key
         run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
-      - name: Connect to Segfault (keep-alive)
+          mkdir -p ~/.ssh
+          ssh-keyscan -H adm.segfault.net >> ~/.ssh/known_hosts
+
+      - name: Run random safe command
         env:
           SEGFAULT_SECRET: ${{ secrets.SEGFAULT_SECRET }}
-          SEGFAULT_PASS: segfault
         run: |
           set -euo pipefail
-          timeout 120s sh -c '
-            printf "exit\n" | sshpass -p "$SEGFAULT_PASS" ssh -tt \
-              -o "RequestTTY=force" \
-              -o "SetEnv=SECRET=$SEGFAULT_SECRET" \
-              -o "StrictHostKeyChecking=no" \
-              -o "UserKnownHostsFile=/dev/null" \
-              -o "PreferredAuthentications=password" \
-              -o "PubkeyAuthentication=no" \
-              root@adm.segfault.net
-          ' >/dev/null 2>&1
+          cmds=(
+            "echo keepalive-ok"
+            "date -u"
+            "whoami"
+            "hostname"
+            "uptime"
+            "id"
+            "uname -a"
+            "df -h /"
+            "free -m"
+            "ls -la /sec | head -n 20"
+          )
+          idx=$(( RANDOM % ${#cmds[@]} ))
+          cmd="${cmds[$idx]}"
+          echo "Running: $cmd"
+          ssh -o StrictHostKeyChecking=yes \
+              -o SetEnv=SECRET=${SEGFAULT_SECRET} \
+              root@adm.segfault.net "$cmd"
