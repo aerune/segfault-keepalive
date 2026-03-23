@@ -1,9 +1,9 @@
 name: Hourly Segfault Keepalive
 
-on:
-  schedule:
-    - cron: "0 * * * *" # every hour
-  workflow_dispatch:
+#on:
+#  schedule:
+#   - cron: "0 * * * *" # every hour
+#  workflow_dispatch:
 
 jobs:
   keepalive:
